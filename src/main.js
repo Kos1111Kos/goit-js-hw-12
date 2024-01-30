@@ -2,7 +2,7 @@
 import iziToast from 'izitoast';
 // Додатковий імпорт стилів
 import 'izitoast/dist/css/iziToast.min.css';
-
+import axios from 'axios';
 // Описаний у документації
 import SimpleLightbox from 'simplelightbox';
 // Додатковий імпорт стилів
@@ -18,48 +18,49 @@ const loaderEl = document.querySelector('.loader-wrapper');
 const formEl = document.querySelector('#search-form');
 formEl.addEventListener('submit', onSubmit);
 
-function getPhotos(q) {
-  const BASE_URL = 'https://pixabay.com/api';
-  const params = new URLSearchParams({
-    key: '42088137-23c74c59277fc3ae3a179e24d',
-    q,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-  });
-  return fetch(`${BASE_URL}/?${params}`).then(res => {
-    if (!res.ok) {
-      throw new Error(res.status);
-    }
-    return res.json('');
-  });
+async function getPhotos(q) {
+  axios.defaults.baseURL = 'https://pixabay.com/api/';
+
+  const params = {
+    params: {
+      key: '42088137-23c74c59277fc3ae3a179e24d',
+      q,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
+    },
+  };
+  try {
+    return await axios.get('', params);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function onSubmit(event) {
+async function onSubmit(event) {
   event.preventDefault();
   loaderPlay();
   listEl.innerHTML = '';
   const searchQuery = event.currentTarget.elements.searchQuery.value.trim();
 
-  getPhotos(searchQuery)
-    .then(res => {
-      console.log(res.hits);
-      if (res.hits.length === 0) {
-        return iziToast.error({
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-        });
-      }
+  try {
+    const {
+      data: { hits },
+    } = await getPhotos(searchQuery);
+    if (hits.length === 0) {
+      return iziToast.error({
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+      });
+    }
 
-      listEl.innerHTML = createMarkup(res.hits);
-      lightbox.refresh();
-    })
-    .catch(error => {
-      console.log(error);
-    })
-    .finally(() => {
-      loaderStop();
-    });
+    listEl.innerHTML = createMarkup(hits);
+    lightbox.refresh();
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loaderStop();
+  }
 }
 
 function createMarkup(arr) {
