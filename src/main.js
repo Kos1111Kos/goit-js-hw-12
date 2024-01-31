@@ -18,9 +18,11 @@ const loaderEl = document.querySelector('.loader-wrapper');
 const formEl = document.querySelector('#search-form');
 formEl.addEventListener('submit', onSubmit);
 
+// Функция для выполнения GET-запроса к API Pixabay
 async function getPhotos(q) {
   axios.defaults.baseURL = 'https://pixabay.com/api/';
 
+  // Задаем параметры для запроса, включая ключ API, поисковый запрос, тип изображения и другие параметры
   const params = {
     params: {
       key: '42088137-23c74c59277fc3ae3a179e24d',
@@ -30,39 +32,44 @@ async function getPhotos(q) {
       safesearch: true,
     },
   };
+  // Выполняем запрос с использованием библиотеки Axios и возвращаем результат
   try {
     return await axios.get('', params);
   } catch (error) {
-    console.log(error);
+    console.log(error); // В случае ошибки выводим её в консоль
   }
 }
 
+// Функция для обработки отправки формы
 async function onSubmit(event) {
-  event.preventDefault();
-  loaderPlay();
-  listEl.innerHTML = '';
-  const searchQuery = event.currentTarget.elements.searchQuery.value.trim();
+  event.preventDefault(); // Предотвращаем стандартное поведение формы
+  loaderPlay(); // Показываем загрузчик
+  listEl.innerHTML = ''; // Очищаем содержимое элемента с классом .gallery
+  const searchQuery = event.currentTarget.elements.searchQuery.value.trim(); // Получаем поисковой запрос из формы
 
   try {
+    // Получаем изображения с помощью функции getPhotos
     const {
       data: { hits },
     } = await getPhotos(searchQuery);
+    // Если изображения не найдены, выводим сообщение об ошибке
     if (hits.length === 0) {
       return iziToast.error({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
       });
     }
-
+    // Создаем HTML-разметку на основе полученных данных и отображаем её
     listEl.innerHTML = createMarkup(hits);
-    lightbox.refresh();
+    lightbox.refresh(); // Обновляем галерею изображений
+    document.querySelector('.load-more').classList.remove('is-hidden');
   } catch (error) {
-    console.log(error);
+    console.log(error); // В случае ошибки выводим её в консоль
   } finally {
-    loaderStop();
+    loaderStop(); // Останавливаем отображение загрузчика
   }
 }
-
+// Функция для создания HTML-разметки на основе массива данных
 function createMarkup(arr) {
   return arr
     .map(
@@ -90,10 +97,19 @@ function createMarkup(arr) {
     )
     .join('');
 }
-
+// Функция для отображения загрузчика
 function loaderPlay() {
   loaderEl.classList.remove('is-hidden');
 }
+
+// Функция для остановки отображения загрузчика
 function loaderStop() {
   loaderEl.classList.add('is-hidden');
 }
+const loadMoreEl = document.createElement('button');
+loadMoreEl.classList.add('load-more');
+loadMoreEl.innerHTML = 'Load more';
+loadMoreEl.addEventListener('click', () => {
+  // Add logic for loading more images
+});
+document.body.appendChild(loadMoreEl);

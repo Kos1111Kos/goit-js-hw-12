@@ -36,6 +36,26 @@ button:focus {
   background-color: #6c8cff;
 }
 
+.but-load {
+  display: flex;
+  justify-content: center;
+}
+
+.load-button {
+  width: 175px;
+  margin-top: 10px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #4e75ff;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.64px;
+  padding: 0;
+  cursor: pointer;
+}
+
 .gallery {
   display: flex;
   flex-wrap: wrap;
@@ -117,6 +137,9 @@ img {
   100% {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
   }
+}
+
+.load-more {
 }
 
 .loader-wrapper {
