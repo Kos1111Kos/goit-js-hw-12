@@ -18,6 +18,8 @@ const loaderEl = document.querySelector('.loader-wrapper');
 const formEl = document.querySelector('#search-form');
 formEl.addEventListener('submit', onSubmit);
 
+// loader.style.display = 'none';
+let currentPage = 1;
 // Функция для выполнения GET-запроса к API Pixabay
 async function getPhotos(q) {
   axios.defaults.baseURL = 'https://pixabay.com/api/';
@@ -30,6 +32,8 @@ async function getPhotos(q) {
       image_type: 'photo',
       orientation: 'horizontal',
       safesearch: true,
+      per_page: 15, // Установить количество изображений на странице
+      page: currentPage, // Использовать текущую страницу
     },
   };
   // Выполняем запрос с использованием библиотеки Axios и возвращаем результат
@@ -50,7 +54,7 @@ async function onSubmit(event) {
   try {
     // Получаем изображения с помощью функции getPhotos
     const {
-      data: { hits },
+      data: { hits, totalHits },
     } = await getPhotos(searchQuery);
     // Если изображения не найдены, выводим сообщение об ошибке
     if (hits.length === 0) {
@@ -63,6 +67,14 @@ async function onSubmit(event) {
     listEl.innerHTML = createMarkup(hits);
     lightbox.refresh(); // Обновляем галерею изображений
     document.querySelector('.load-more').classList.remove('is-hidden');
+    if (hits.length < totalHits) {
+      // Показать кнопку "Загрузить еще"
+      loadMoreEl.classList.remove('is-hidden');
+    } else {
+      // Скрыть кнопку "Загрузить еще"
+      loadMoreEl.classList.add('is-hidden');
+      endOfSearchResults(totalHits);
+    }
   } catch (error) {
     console.log(error); // В случае ошибки выводим её в консоль
   } finally {
@@ -73,22 +85,22 @@ async function onSubmit(event) {
 function createMarkup(arr) {
   return arr
     .map(
-      el => `
-   <li class='photo-card'>
-    <a href='${el.largeImageURL}'>
+      el => `			
+   <li class='photo-card'>	
+    <a href='${el.largeImageURL}'>	
       <img src='${el.webformatURL}' alt='${el.tags}' loading='lazy' />
-    </a>
-    <div class='info'>
-      <p class='info-item'>
-        <b>Likes ${el.likes}</b>
-      </p>
-      <p class='info-item'>
-        <b>Views ${el.views}</b>
-      </p>
-      <p class='info-item'>
+    </a>				
+    <div class='info'>		
+      <p class='info-item'>	
+        <b>Likes ${el.likes}</b>	
+      </p>			
+      <p class='info-item'>	
+        <b>Views ${el.views}</b>	
+      </p>			
+      <p class='info-item'>	
         <b>Comments ${el.comments}</b>
-      </p>
-      <p class='info-item'>
+      </p>			
+      <p class='info-item'>	
         <b>Downloads ${el.downloads}</b>
       </p>
     </div>
@@ -101,15 +113,47 @@ function createMarkup(arr) {
 function loaderPlay() {
   loaderEl.classList.remove('is-hidden');
 }
-
 // Функция для остановки отображения загрузчика
 function loaderStop() {
   loaderEl.classList.add('is-hidden');
 }
+
 const loadMoreEl = document.createElement('button');
 loadMoreEl.classList.add('load-more');
 loadMoreEl.innerHTML = 'Load more';
-loadMoreEl.addEventListener('click', () => {
-  // Add logic for loading more images
+loadMoreEl.addEventListener('click', async () => {
+  currentPage++; // Увеличить текущую страницу
+  loaderPlay(); // Показать загрузчик
+  try {
+    const {
+      data: { hits, totalHits },
+    } = await getPhotos(savedSearchQuery); // Использовать сохраненный поисковый запрос
+    if (hits.length > 0) {
+      listEl.innerHTML += createMarkup(hits); // Добавить новые изображения в галерею
+      lightbox.refresh(); // Обновить lightbox
+    }
+    if (hits.length < totalHits) {
+      loaderStop();
+    } else {
+      loaderStop();
+      loadMoreEl.classList.add('is-hidden'); // Скрыть кнопку "Загрузить еще"
+      endOfSearchResults(totalHits);
+    }
+  } catch (error) {
+    console.log(error);
+    loaderStop();
+  }
 });
 document.body.appendChild(loadMoreEl);
+// Викликати цю функцію, коли користувач дійшов до кінця колекції
+function endOfSearchResults(totalHits) {
+  if (totalHits === 0) {
+    // Якщо загальна кількість зображень дорівнює 0, вивести повідомлення про порожній результат
+    alert("We're sorry, but there are no search results.");
+  } else {
+    // Інакше вивести повідомлення про кінець результатів пошуку
+    alert("We're sorry, but you've reached the end of search results.");
+    // Приховати кнопку "Load more"
+    document.getElementById('loadMoreEl').style.display = 'none';
+  }
+}
