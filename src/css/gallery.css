@@ -1,3 +1,10 @@
+.container {
+  width: 1440;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 32px;
+}
+
 .gallery-cards {
   padding: 60px 0;
 }
@@ -111,11 +118,6 @@ img {
   border: 5px solid #3e3e3e;
   animation: prixClipFix 2s linear infinite;
 }
-.loader::after {
-  inset: 8px;
-  transform: rotate3d(90, 90, 0, 180deg);
-  border-color: #ff3d00;
-}
 
 @keyframes rotate {
   0% {
@@ -137,9 +139,6 @@ img {
   100% {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
   }
-}
-
-.load-more {
 }
 
 .loader-wrapper {

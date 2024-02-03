@@ -10,6 +10,7 @@
   <body>
     <section class="gallery-cards">
       <div class="container">
+        <!-- Добавлен тег div -->
         <form class="search-form" id="search-form">
           <input
             type="text"
@@ -23,15 +24,17 @@
         <ul class="gallery">
           <!-- Картки зображень -->
         </ul>
-        <div class="but-load">
-          <button
-            type="button"
-            class="load-button is-hidden"
-            data-action="load-more"
-          ></button>
-        </div>
+
+        <button
+          class="but-load is-hidden"
+          type="button"
+          data-action="load-more"
+        ></button>
+        <!-- Убран лишний перенос строки -->
+
         <div class="loader-wrapper is-hidden"><p class="loader"></p></div>
       </div>
+      <!-- Закрыт тег div -->
     </section>
     <script type="module" src="./main.js"></script>
   </body>
