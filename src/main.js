@@ -52,7 +52,10 @@ async function onSubmit(event) {
   listEl.innerHTML = ''; // Очищаем содержимое элемента с классом .gallery
   const searchQuery = event.currentTarget.elements.searchQuery.value.trim(); // Получаем поисковой запрос из формы
   if (!searchQuery) {
-    return alert('Please enter a valid search query');
+    iziToast.error({
+      message: 'Please enter a valid search query',
+    });
+    return;
   }
   try {
     // Получаем изображения с помощью функции getPhotos
@@ -127,15 +130,17 @@ function loaderStop() {
 }
 
 const loadMoreEl = document.createElement('button');
-loadMoreEl.classList.add('load-more');
+loadMoreEl.classList.add('load-more', 'is-hidden'); // Добавьте класс 'is-hidden' для скрытия кнопки
 loadMoreEl.innerHTML = 'Load more';
 loadMoreEl.addEventListener('click', async () => {
   currentPage++; // Увеличить текущую страницу
   loaderPlay();
   try {
-    const { hits, totalHits } = await getPhotos(savedSearchQuery, currentPage);
+    const {
+      data: { hits, totalHits },
+    } = await getPhotos(searchQuery);
     if (hits.length > 0) {
-      listEl.innerHTML += createMarkup(hits);
+      insertAdjacentHTML += createMarkup(hits);
       // Обновляем экземпляр SimpleLightbox после добавления новых элементов
       simpleLightbox.refresh();
     }
@@ -152,14 +157,17 @@ loadMoreEl.addEventListener('click', async () => {
   }
 });
 document.body.appendChild(loadMoreEl);
+
 // Викликати цю функцію, коли користувач дійшов до кінця колекції
 function endOfSearchResults(totalHits) {
   if (totalHits === 0) {
-    // Якщо загальна кількість зображень дорівнює 0, вивести повідомлення про порожній результат
-    alert("We're sorry, but there are no search results.");
+    iziToast.error({
+      message: "We're sorry, but there are no search results.",
+    });
   } else {
-    // Інакше вивести повідомлення про кінець результатів пошуку
-    alert("We're sorry, but you've reached the end of search results.");
+    iziToast.error({
+      message: "We're sorry, but you've reached the end of search results.",
+    });
     // Приховати кнопку "Load more"
     document.getElementById('loadMoreEl').style.display = 'none';
   }
