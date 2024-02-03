@@ -20,8 +20,9 @@ formEl.addEventListener('submit', onSubmit);
 
 // loader.style.display = 'none';
 let currentPage = 1;
+let savedSearchQuery = '';
 // Функция для выполнения GET-запроса к API Pixabay
-async function getPhotos(q) {
+async function getPhotos(q, page = 1) {
   axios.defaults.baseURL = 'https://pixabay.com/api/';
 
   // Задаем параметры для запроса, включая ключ API, поисковый запрос, тип изображения и другие параметры
@@ -33,7 +34,7 @@ async function getPhotos(q) {
       orientation: 'horizontal',
       safesearch: true,
       per_page: 15, // Установить количество изображений на странице
-      page: currentPage, // Использовать текущую страницу
+      page, // Использовать текущую страницу
     },
   };
   // Выполняем запрос с использованием библиотеки Axios и возвращаем результат
@@ -50,7 +51,9 @@ async function onSubmit(event) {
   loaderPlay(); // Показываем загрузчик
   listEl.innerHTML = ''; // Очищаем содержимое элемента с классом .gallery
   const searchQuery = event.currentTarget.elements.searchQuery.value.trim(); // Получаем поисковой запрос из формы
-
+  if (!searchQuery) {
+    return alert('Please enter a valid search query');
+  }
   try {
     // Получаем изображения с помощью функции getPhotos
     const {
@@ -65,7 +68,9 @@ async function onSubmit(event) {
     }
     // Создаем HTML-разметку на основе полученных данных и отображаем её
     listEl.innerHTML = createMarkup(hits);
+
     lightbox.refresh(); // Обновляем галерею изображений
+
     document.querySelector('.load-more').classList.remove('is-hidden');
     if (hits.length < totalHits) {
       // Показать кнопку "Загрузить еще"
@@ -83,6 +88,9 @@ async function onSubmit(event) {
 }
 // Функция для создания HTML-разметки на основе массива данных
 function createMarkup(arr) {
+  if (arr.length === 0) {
+    return 'No images found';
+  }
   return arr
     .map(
       el => `			
@@ -123,20 +131,19 @@ loadMoreEl.classList.add('load-more');
 loadMoreEl.innerHTML = 'Load more';
 loadMoreEl.addEventListener('click', async () => {
   currentPage++; // Увеличить текущую страницу
-  loaderPlay(); // Показать загрузчик
+  loaderPlay();
   try {
-    const {
-      data: { hits, totalHits },
-    } = await getPhotos(savedSearchQuery); // Использовать сохраненный поисковый запрос
+    const { hits, totalHits } = await getPhotos(savedSearchQuery, currentPage);
     if (hits.length > 0) {
-      listEl.innerHTML += createMarkup(hits); // Добавить новые изображения в галерею
-      lightbox.refresh(); // Обновить lightbox
+      listEl.innerHTML += createMarkup(hits);
+      // Обновляем экземпляр SimpleLightbox после добавления новых элементов
+      simpleLightbox.refresh();
     }
     if (hits.length < totalHits) {
       loaderStop();
     } else {
       loaderStop();
-      loadMoreEl.classList.add('is-hidden'); // Скрыть кнопку "Загрузить еще"
+      loadMoreEl.classList.add('is-hidden');
       endOfSearchResults(totalHits);
     }
   } catch (error) {
