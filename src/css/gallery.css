@@ -4,7 +4,15 @@
   margin-right: auto;
   padding: 32px;
 }
-
+.info {
+  display: flex;
+  background-color: #fff;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  box-shadow: 0px 1px 6px rgba(46, 47, 66, 0.08),
+    0px 1px 1px rgba(46, 47, 66, 0.16), 0px 2px 1px rgba(46, 47, 66, 0.08);
+}
 .gallery-cards {
   padding: 60px 0;
 }
@@ -24,7 +32,9 @@ input {
   padding-left: 15px;
   border: 1px solid #303030;
 }
-
+body {
+  background: #efe89a;
+}
 button {
   font-size: 14px;
   padding: 10px 20px;
@@ -44,10 +54,10 @@ button:focus {
 }
 
 .but-load {
-  background: #000000;
+  background: #cf2828;
 }
 
-.load-button {
+.load-more {
   width: 175px;
   margin-top: 10px;
   height: 40px;
@@ -60,6 +70,9 @@ button:focus {
   letter-spacing: 0.64px;
   padding: 0;
   cursor: pointer;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .gallery {

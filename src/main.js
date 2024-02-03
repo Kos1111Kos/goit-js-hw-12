@@ -20,7 +20,8 @@ formEl.addEventListener('submit', onSubmit);
 
 // loader.style.display = 'none';
 let currentPage = 1;
-let savedSearchQuery = '';
+
+let searchQuery = '';
 // Функция для выполнения GET-запроса к API Pixabay
 async function getPhotos(q, page = 1) {
   axios.defaults.baseURL = 'https://pixabay.com/api/';
@@ -47,10 +48,10 @@ async function getPhotos(q, page = 1) {
 
 // Функция для обработки отправки формы
 async function onSubmit(event) {
-  event.preventDefault(); // Предотвращаем стандартное поведение формы
-  loaderPlay(); // Показываем загрузчик
-  listEl.innerHTML = ''; // Очищаем содержимое элемента с классом .gallery
-  const searchQuery = event.currentTarget.elements.searchQuery.value.trim(); // Получаем поисковой запрос из формы
+  event.preventDefault(); // Перешкоджаємо стандартному поведінці форми
+  loaderPlay(); // Показуємо завантажувач
+  listEl.innerHTML = ''; // Очищаємо вміст елемента з класом .gallery
+  searchQuery = event.currentTarget.elements.searchQuery.value.trim(); // Отримуємо пошуковий запит з форми
   if (!searchQuery) {
     iziToast.error({
       message: 'Please enter a valid search query',
@@ -58,35 +59,35 @@ async function onSubmit(event) {
     return;
   }
   try {
-    // Получаем изображения с помощью функции getPhotos
+    // Отримуємо зображення за допомогою функції getPhotos
     const {
       data: { hits, totalHits },
     } = await getPhotos(searchQuery);
-    // Если изображения не найдены, выводим сообщение об ошибке
+    // Якщо зображення не знайдено, виводимо повідомлення про помилку
     if (hits.length === 0) {
       return iziToast.error({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
       });
     }
-    // Создаем HTML-разметку на основе полученных данных и отображаем её
+    // Створюємо HTML-розмітку на основі отриманих даних і відображаємо її
     listEl.innerHTML = createMarkup(hits);
 
-    lightbox.refresh(); // Обновляем галерею изображений
+    lightbox.refresh(); // Оновлюємо галерею зображень
 
     document.querySelector('.load-more').classList.remove('is-hidden');
     if (hits.length < totalHits) {
-      // Показать кнопку "Загрузить еще"
+      // Показати кнопку "Завантажити ще"
       loadMoreEl.classList.remove('is-hidden');
     } else {
-      // Скрыть кнопку "Загрузить еще"
+      // Приховати кнопку "Завантажити ще"
       loadMoreEl.classList.add('is-hidden');
       endOfSearchResults(totalHits);
     }
   } catch (error) {
-    console.log(error); // В случае ошибки выводим её в консоль
+    console.log(error); // У випадку помилки виводимо її в консоль
   } finally {
-    loaderStop(); // Останавливаем отображение загрузчика
+    loaderStop(); // Зупиняємо відображення завантажувача
   }
 }
 // Функция для создания HTML-разметки на основе массива данных
@@ -132,17 +133,18 @@ function loaderStop() {
 const loadMoreEl = document.createElement('button');
 loadMoreEl.classList.add('load-more', 'is-hidden'); // Добавьте класс 'is-hidden' для скрытия кнопки
 loadMoreEl.innerHTML = 'Load more';
+
 loadMoreEl.addEventListener('click', async () => {
-  currentPage++; // Увеличить текущую страницу
+  currentPage++; // Збільшити поточну сторінку
   loaderPlay();
   try {
     const {
       data: { hits, totalHits },
-    } = await getPhotos(searchQuery);
+    } = await getPhotos(searchQuery, currentPage);
     if (hits.length > 0) {
-      insertAdjacentHTML += createMarkup(hits);
-      // Обновляем экземпляр SimpleLightbox после добавления новых элементов
-      simpleLightbox.refresh();
+      listEl.insertAdjacentHTML('beforeend', createMarkup(hits));
+      // Оновлюємо галерею зображень
+      lightbox.refresh();
     }
     if (hits.length < totalHits) {
       loaderStop();
