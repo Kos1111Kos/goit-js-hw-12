@@ -122,6 +122,13 @@ function createMarkup(arr) {
     )
     .join('');
 }
+
+function displayError(message) {
+  iziToast.error({
+    message: message,
+  });
+}
+
 // Функция для отображения загрузчика
 function loaderPlay() {
   loaderEl.classList.remove('is-hidden');
@@ -151,7 +158,7 @@ loadMoreEl.addEventListener('click', async () => {
       loaderStop();
     } else {
       loaderStop();
-      loadMoreEl.classList.add('is-hidden');
+      loadMoreEl.style.display = 'none';
       endOfSearchResults(totalHits);
     }
   } catch (error) {
@@ -172,6 +179,7 @@ function endOfSearchResults(totalHits) {
       message: "We're sorry, but you've reached the end of search results.",
     });
     // Приховати кнопку "Load more"
-    document.getElementById('loadMoreEl').style.display = 'none';
+    loadMoreEl.style.display = 'none';
+    // document.getElementById('loadMoreEl').style.display = 'none';
   }
 }
