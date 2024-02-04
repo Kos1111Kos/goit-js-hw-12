@@ -51,6 +51,7 @@ async function onSubmit(event) {
   event.preventDefault(); // Перешкоджаємо стандартному поведінці форми
   loaderPlay(); // Показуємо завантажувач
   listEl.innerHTML = ''; // Очищаємо вміст елемента з класом .gallery
+  currentPage = 1;
   searchQuery = event.currentTarget.elements.searchQuery.value.trim(); // Отримуємо пошуковий запит з форми
   if (!searchQuery) {
     iziToast.error({
